@@ -6,9 +6,7 @@ AICommandGenerator leverages OpenAI's powerful GPT-3.5 model to instantly genera
 
 # Features:
 
-**Generate bash commands for file manipulation, system administration, and more.
-
-Create Terraform modules for AWS, Azure, and GCP resources.
-Easy-to-use CLI interface.
-
-Customizable command generation based on user preferences.**
+- Generate bash commands for file manipulation, system administration, and more.
+- Create Terraform modules for AWS, Azure, and GCP resources.
+- Easy-to-use CLI interface.
+- Customizable command generation based on user preferences
