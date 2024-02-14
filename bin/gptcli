@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+
+import argparse
+import argparse
+import requests
+import os
+import platform
+
+API_KEY = os.getenv('OPENAI_API_KEY')
+API_URL = 'https://api.openai.com/v1/chat/completions'
+
+def generate_command(prompt, model="gpt-3.5-turbo", temperature=0.5, max_tokens=100):
+    headers = {'Authorization': f'Bearer {API_KEY}'}
+    data = {
+        'model': model,
+        'messages': [{"role": "user", "content": prompt}],
+    }
+    response = requests.post(API_URL, headers=headers, json=data)
+    try:
+        generated_text = response.json()['choices'][0]['message']['content'].strip()
+        return generated_text
+    except KeyError as e:
+        return f"Error generating command: {str(e)}"
+
+def create_terraform_file(file_content):
+    # Define the file name for the Terraform configuration
+    file_name = "generated_s3_bucket.tf"
+    with open(file_name, 'w') as file:
+        file.write(file_content)
+    print(f"Terraform file '{file_name}' has been created successfully.")
+
+def setup_cli_parser():
+    parser = argparse.ArgumentParser(description="Generate commands using OpenAI's GPT-3.5")
+    subparsers = parser.add_subparsers(dest='type', help='sub-command help')
+    
+    parser_bash = subparsers.add_parser('bash', help='Generate bash commands')
+    parser_bash.add_argument('query', type=str, help="The task description for bash")
+
+    parser_terraform = subparsers.add_parser('terraform', help='Generate Terraform modules')
+    parser_terraform.add_argument('query', type=str, help="The task description for terraform")
+
+    return parser
+
+def main():
+    parser = setup_cli_parser()
+    args = parser.parse_args()
+    
+    if args.type:
+        prompt = f"{args.query}"
+        print("Generating command, please wait...\n")
+        generated_command = generate_command(prompt)
+        print("Suggested Command:\n")
+        print(generated_command)
+
+        os_permission = input("Do you want to allow me to understand your OS platform architecture for better results? (yes/no): ").strip().lower()
+        if os_permission == 'yes':
+            print(f"Your operating system is detected as: {platform.system()}")
+
+        action_confirmation = input("Do you want to proceed with the suggested action? (yes/no): ").strip().lower()
+        if action_confirmation == 'yes':
+            # Assuming the suggested action is to create a Terraform file
+            create_terraform_file(generated_command)
+        else:
+            print("Action declined.")
+    else:
+        parser.print_help()
+
+if __name__ == "__main__":
+    main()
