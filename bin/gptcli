@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-import argparse
 import requests
 import os
-import platform
+import json
 
 API_KEY = os.getenv('OPENAI_API_KEY')
 API_URL = 'https://api.openai.com/v1/chat/completions'
@@ -22,48 +21,44 @@ def generate_command(prompt, model="gpt-3.5-turbo", temperature=0.5, max_tokens=
     except KeyError as e:
         return f"Error generating command: {str(e)}"
 
-def create_terraform_file(file_content):
-    # Define the file name for the Terraform configuration
-    file_name = "generated_s3_bucket.tf"
-    with open(file_name, 'w') as file:
-        file.write(file_content)
-    print(f"Terraform file '{file_name}' has been created successfully.")
+def create_file_based_on_suggestion(suggestion):
+    # Extracting file type and name from suggestion if possible
+    # This is a simplified example and might need adjustments based on the model's output
+    if "text file" in suggestion:
+        file_name = "example.txt"
+    elif "yaml" in suggestion:
+        file_name = "example.yaml"
+    elif "json" in suggestion:
+        file_name = "example.json"
+    else:
+        print("Could not determine the file type from the suggestion.")
+        return
+    
+    file_path = os.path.join(os.getcwd(), file_name)
+    with open(file_path, 'w') as file:
+        file.write("# Generated based on GPT suggestion\n")
+        print(f"File '{file_name}' has been created successfully in the current directory.")
 
 def setup_cli_parser():
     parser = argparse.ArgumentParser(description="Generate commands using OpenAI's GPT-3.5")
-    subparsers = parser.add_subparsers(dest='type', help='sub-command help')
+    parser.add_argument('query', type=str, help="The task description")
     
-    parser_bash = subparsers.add_parser('bash', help='Generate bash commands')
-    parser_bash.add_argument('query', type=str, help="The task description for bash")
-
-    parser_terraform = subparsers.add_parser('terraform', help='Generate Terraform modules')
-    parser_terraform.add_argument('query', type=str, help="The task description for terraform")
-
     return parser
 
 def main():
     parser = setup_cli_parser()
     args = parser.parse_args()
-    
-    if args.type:
-        prompt = f"{args.query}"
-        print("Generating command, please wait...\n")
-        generated_command = generate_command(prompt)
-        print("Suggested Command:\n")
-        print(generated_command)
 
-        os_permission = input("Do you want to allow me to understand your OS platform architecture for better results? (yes/no): ").strip().lower()
-        if os_permission == 'yes':
-            print(f"Your operating system is detected as: {platform.system()}")
+    print("Generating command, please wait...\n")
+    generated_command = generate_command(args.query)
+    print("Suggested Command:\n")
+    print(generated_command)
 
-        action_confirmation = input("Do you want to proceed with the suggested action? (yes/no): ").strip().lower()
-        if action_confirmation == 'yes':
-            # Assuming the suggested action is to create a Terraform file
-            create_terraform_file(generated_command)
-        else:
-            print("Action declined.")
+    action_confirmation = input("Do you want to proceed with the suggested action? (yes/no): ").strip().lower()
+    if action_confirmation == 'yes':
+        create_file_based_on_suggestion(generated_command)
     else:
-        parser.print_help()
+        print("Action declined.")
 
 if __name__ == "__main__":
     main()
