@@ -1,4 +1,5 @@
 # Project README
+![Alt text](../docs/gptcli-icon.png)
 
 ## Table of Contents
 - [Description](#description)
