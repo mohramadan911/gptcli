@@ -17,7 +17,8 @@ To install `gptcli`, this will require OpenAI API key - so you can follow these 
 
 - ```
   export OPENAI_API_KEY=''
-```
+  ```
+  
 - ```
   brew tap mohramadan911/homebrew-gptcli
   brew install gptcli
