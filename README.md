@@ -13,10 +13,9 @@
 `gptcli` is a Command-Line Interface tool designed to generate commands and scripts using OpenAI's GPT models. It serves as a bridge between artificial intelligence and everyday command-line tasks, making it easier for developers, system administrators, and tech enthusiasts to automate and simplify complex tasks with AI-powered insights.
 
 ## Installation
-To install `gptcli`, follow these steps:
+To install `gptcli`, this will require OpenAI API key - so you can follow these steps :
 
-- you need OpenAI API key : 
-```
+- ```
   export OPENAI_API_KEY=''
 ```
 - ```
