@@ -9,14 +9,21 @@ import sys
 API_KEY = os.getenv('OPENAI_API_KEY')
 API_URL = 'https://api.openai.com/v1/chat/completions'
 
+# get version from VERSION file and return it the below minitest gave me the below error
+# Minitest::Assertion: Expected /gptcli\ 1\.2\.7/ to match "gptcli Unknown version\n".
+# I think it's because the version is not being read from the VERSION file
+# I will try to read the version from the VERSION file
 def get_version_from_file():
     try:
-        # Adjust the path to where your VERSION file is located relative to this script
-        with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION'), 'r') as version_file:
-            return version_file.read().strip()
+        # This constructs a path to the VERSION file based on the script's directory
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        version_file_path = os.path.join(dir_path, 'VERSION')
+        with open(version_file_path, 'r') as file:
+            return file.read().strip()
     except FileNotFoundError:
-        # Fallback to "Unknown version" if the VERSION file is not found
         return "Unknown version"
+
+
 
 def generate_command(prompt, model="gpt-3.5-turbo", temperature=0.5, max_tokens=100):
     headers = {'Authorization': f'Bearer {API_KEY}'}
