@@ -4,19 +4,18 @@ import argparse
 import requests
 import os
 import platform
-import subprocess
 import sys
 
 API_KEY = os.getenv('OPENAI_API_KEY')
 API_URL = 'https://api.openai.com/v1/chat/completions'
 
-def get_version_from_git():
+def get_version_from_file():
     try:
-        # Fetch the latest tag name as version
-        version = subprocess.check_output(["git", "describe", "--tags"]).decode('utf-8').strip()
-        return version
-    except subprocess.CalledProcessError:
-        # Default to unknown if the git command fails
+        # Assuming the VERSION file is located at the root of your project
+        with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION'), 'r') as version_file:
+            return version_file.read().strip()
+    except FileNotFoundError:
+        # Default to unknown if the VERSION file is not found
         return "Unknown version"
 
 def generate_command(prompt, model="gpt-3.5-turbo", temperature=0.5, max_tokens=100):
@@ -72,7 +71,7 @@ Usage examples:
 def main():
     # Early check for --version argument
     if '--version' in sys.argv:
-        print(f'gptcli {get_version_from_git()}')
+        print(f'gptcli {get_version_from_file()}')
         sys.exit(0)
 
     parser = setup_cli_parser()
