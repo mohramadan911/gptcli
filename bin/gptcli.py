@@ -11,9 +11,11 @@ API_URL = 'https://api.openai.com/v1/chat/completions'
 
 def get_version_from_file():
     try:
+        # Adjust the path to where your VERSION file is located relative to this script
         with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION'), 'r') as version_file:
             return version_file.read().strip()
     except FileNotFoundError:
+        # Fallback to "Unknown version" if the VERSION file is not found
         return "Unknown version"
 
 def generate_command(prompt, model="gpt-3.5-turbo", temperature=0.5, max_tokens=100):
