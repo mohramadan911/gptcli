@@ -6,18 +6,14 @@ import os
 import platform
 import sys
 
+# Version constant
+VERSION = "1.2.13"
+
 API_KEY = os.getenv('OPENAI_API_KEY')
 API_URL = 'https://api.openai.com/v1/chat/completions'
 
-def get_version_from_file():
-    try:
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        version_file_path = os.path.join(dir_path, 'VERSION')
-        with open(version_file_path, 'r') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        return "Unknown version"
-
+def get_version():
+    return VERSION
 
 def generate_command(prompt, model="gpt-3.5-turbo", temperature=0.5, max_tokens=100):
     headers = {'Authorization': f'Bearer {API_KEY}'}
@@ -72,7 +68,7 @@ Usage examples:
 def main():
     # Early check for --version argument
     if '--version' in sys.argv:
-        print(f'gptcli {get_version_from_file()}')
+        print(f'gptcli {get_version()}')
         sys.exit(0)
 
     parser = setup_cli_parser()
