@@ -4,9 +4,20 @@ import argparse
 import requests
 import os
 import platform
+import subprocess
+import sys
 
 API_KEY = os.getenv('OPENAI_API_KEY')
 API_URL = 'https://api.openai.com/v1/chat/completions'
+
+def get_version_from_git():
+    try:
+        # Fetch the latest tag name as version
+        version = subprocess.check_output(["git", "describe", "--tags"]).decode('utf-8').strip()
+        return version
+    except subprocess.CalledProcessError:
+        # Default to unknown if the git command fails
+        return "Unknown version"
 
 def generate_command(prompt, model="gpt-3.5-turbo", temperature=0.5, max_tokens=100):
     headers = {'Authorization': f'Bearer {API_KEY}'}
@@ -59,32 +70,34 @@ Usage examples:
     return parser
 
 def main():
+    # Early check for --version argument
+    if '--version' in sys.argv:
+        print(f'gptcli {get_version_from_git()}')
+        sys.exit(0)
+
     parser = setup_cli_parser()
     args = parser.parse_args()
     
     if not vars(args):
         parser.print_help()
-        return
+        sys.exit(0)
 
-    if args.type:
-        prompt = f"{args.query}"
-        print("Generating command, please wait...\n")
-        generated_command = generate_command(prompt)
-        print("Suggested Command:\n")
-        print(generated_command)
+    prompt = f"{args.query}"
+    print("Generating command, please wait...\n")
+    generated_command = generate_command(prompt)
+    print("Suggested Command:\n")
+    print(generated_command)
 
-        os_permission = input("Do you want to allow me to understand your OS platform architecture for better results? (yes/no): ").strip().lower()
-        if os_permission == 'yes':
-            print(f"Your operating system is detected as: {platform.system()}")
+    os_permission = input("Do you want to allow me to understand your OS platform architecture for better results? (yes/no): ").strip().lower()
+    if os_permission == 'yes':
+        print(f"Your operating system is detected as: {platform.system()}")
 
-        action_confirmation = input("Do you want to proceed with the suggested action? (yes/no): ").strip().lower()
-        if action_confirmation == 'yes':
-            file_type = determine_file_type(generated_command)  # Determine file type from command
-            create_file(generated_command, file_type)  # Use the same file creation for all command types
-        else:
-            print("Action declined.")
+    action_confirmation = input("Do you want to proceed with the suggested action? (yes/no): ").strip().lower()
+    if action_confirmation == 'yes':
+        file_type = determine_file_type(generated_command)
+        create_file(generated_command, file_type)
     else:
-        parser.print_help()
+        print("Action declined.")
 
 if __name__ == "__main__":
     main()
